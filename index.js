@@ -2,6 +2,8 @@ const express = require('express')
 const app = express()
 const bodyParser = require('body-parser')
 
+app.use(bodyParser.json())
+
 
 let persons = [
   {
@@ -31,13 +33,22 @@ function getRandomArbitrary(min, max) {
 
 app.post('/api/persons', (request, response) => {  //3.5
     const body = request.body
-    console.log("ihmiset",persons)
-    console.log('post',body)
+    
+    //console.log('post',body, "vs ",request)
 
-    if (body.name === undefined) {
-      return response.status(400).json({error: 'name missing'})
+    if (body.name === undefined) {   //3.6
+      return response.status(400).json({error: 'Name missing'})
+    }
+    if (body.number === undefined) {
+      return response.status(400).json({error: 'Number missing'})
+    }
+    
+    if (persons.filter(p => p.name === body.name).length>0) {
+      //console.log('Löytyypi listasta', body.name)
+      return response.status(400).json({error: 'Name exists already.'})
     }
   
+    
     const person = {
       name: body.name,
       number: body.number,
