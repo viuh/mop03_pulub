@@ -1,8 +1,22 @@
 const express = require('express')
+var morgan = require('morgan')
+
+
 const app = express()
 const bodyParser = require('body-parser')
-
 app.use(bodyParser.json())
+
+
+//app.use(morgan('tiny')) // 3.7
+app.use(morgan(':method :url :type :status :res[content-length] - :response-time ms'))
+
+
+morgan.token('type', function (req, res) {   //3.8
+  //console.log('dda',req.body)
+  return JSON.stringify(req.body)
+
+})
+
 
 
 let persons = [
@@ -54,7 +68,7 @@ app.post('/api/persons', (request, response) => {  //3.5
       number: body.number,
       id: getRandomArbitrary(1,25000)
     }
-    console.log('Uusi',person)
+    //console.log('Uusi',person)
   
     persons = persons.concat(person)
   
