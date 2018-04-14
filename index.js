@@ -14,6 +14,8 @@ app.use(cors())
 //app.use(morgan('tiny')) // 3.7
 app.use(morgan(':method :url :type :status :res[content-length] - :response-time ms'))
 
+const Person = require('./models/person')
+
 
 morgan.token('type', function (req, res) {   //3.8
   //console.log('dda',req.body)
@@ -24,7 +26,16 @@ morgan.token('type', function (req, res) {   //3.8
 app.use(express.static('build'))
 
 
-let persons = [
+
+app.get('/api/persons', (request, response) => {
+  Person
+    .find({})
+    .then(persons => {
+      response.json(persons)
+    })
+})
+
+let persons2 = [
   {
     id: 1,
     name: "Arto Hellas",
@@ -51,6 +62,14 @@ let persons = [
   }
 ]
 
+const formatPerson2 = (person) => {
+  return {
+    name: person.name,
+    number: person.number,
+    id: person._id
+  }
+}
+
 function getRandomArbitrary(min, max) {
     return Math.random() * (max - min) + min;
   }
@@ -59,7 +78,7 @@ app.post('/api/persons', (request, response) => {  //3.5
     const body = request.body
     
     //console.log('post',body, "vs ",request)
-
+    console.log('DB add! for',body.name)
     if (body.name === undefined) {   //3.6
       return response.status(400).json({error: 'Name missing'})
     }
@@ -68,37 +87,42 @@ app.post('/api/persons', (request, response) => {  //3.5
     }
     
     if (persons.filter(p => p.name === body.name).length>0) {
-      //console.log('Löytyypi listasta', body.name)
+      console.log('Löytyypi listasta jo', body.name)
       return response.status(400).json({error: 'Name exists already.'})
     }
   
-    
-    const person = {
+    const person = new Person({
       name: body.name,
       number: body.number,
       id: getRandomArbitrary(1,25000)
-    }
+    })
     //  console.log('Uusi',person)
   
     persons = persons.concat(person)
   
-    response.json(person)
+    //response.json(person)
+    person
+      .save ()
+      .then(addedPerson => {
+        response.json(formatPerson2(addedPerson))
+      })
+
   })
 
 
+ 
+app.get('/api/persons/:id', (request, response) => {
+    console.log('DB Get!')
+    Person
+      .findById(request.params.id)
+      .then(person => {
+        response.json(formatPerson(person))
+      })
+})
 
-app.get('/api/persons/:id', (request, response) => {  //3.3
-    const id = Number(request.params.id)
-    const person = persons.find(p => p.id === id)
-  
-    if ( person ) {
-      response.json(person)
-    } else {
-      response.status(404).end()
-    }
-  })
-  
-  app.delete('/api/persons/:id', (request, response) => {  //3.4
+
+
+ app.delete('/api/persons/:id', (request, response) => {  //3.4
     const id = Number(request.params.id)
     person = persons.filter(p => p.id !== id)
     console.log('Deleting, stat:',person)
@@ -118,9 +142,9 @@ app.get('/info', (req, res) => {  //3.2.
     
 
 
-app.get('/api/persons', (req, res) => {
+/*app.get('/api/persons', (req, res) => {
     res.json(persons)
-  })
+  })*/
   
   app.use(bodyParser.json())
   
