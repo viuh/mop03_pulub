@@ -6,7 +6,6 @@
   "scripts": {
     "start": "node index.js",
     "watch": "nodemon index.js",
-    "startclient": "set PORT=3006 && react-scripts start",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {

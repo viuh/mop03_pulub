@@ -21,6 +21,7 @@ morgan.token('type', function (req, res) {   //3.8
 
 })
 
+app.use(express.static('build'))
 
 
 let persons = [

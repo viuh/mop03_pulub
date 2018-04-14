@@ -143,7 +143,7 @@ class App extends React.Component {
       if (window.confirm("Poistetaanko "+name+" ?")) {
 
       let others = this.state.persons.filter(person=>person.id!==id)
-      console.log ("Muut kamut: ", others)  
+      //console.log ("Muut kamut: ", others)  
  
       personService
           .deletex(id)
@@ -153,7 +153,8 @@ class App extends React.Component {
               persons: others
             })
           })
-          .catch(error => {      
+          .catch(error => {
+            
             this.setState({
               error: `Henkilö '${name}' on jo valitettavasti poistettu palvelimelta`,
               notes: this.state.persons.filter(n => n.id !== id),
