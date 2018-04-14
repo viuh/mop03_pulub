@@ -1,4 +1,13 @@
 
+# Server-version at:
+
+    https://serene-brushlands-89861.herokuapp.com/
+
+
+(git push heroku master)
+
+
+# ----------------------------------
 
 ### For running server:  (in port 3001)
 
