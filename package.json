@@ -6,6 +6,7 @@
   "scripts": {
     "start": "node index.js",
     "watch": "nodemon index.js",
+    "startclient": "set PORT=3006 && react-scripts start",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -19,8 +20,13 @@
   },
   "homepage": "https://github.com/viuh/mop03_pulub#readme",
   "dependencies": {
+    "axios": "^0.18.0",
+    "cors": "^2.8.4",
     "express": "^4.16.3",
-    "morgan": "^1.9.0"
+    "morgan": "^1.9.0",
+    "react": "^16.3.1",
+    "react-dom": "^16.3.1",
+    "react-scripts": "^1.1.4"
   },
   "devDependencies": {
     "nodemon": "^1.17.3"

@@ -7,6 +7,10 @@ const bodyParser = require('body-parser')
 app.use(bodyParser.json())
 
 
+const cors = require('cors')
+app.use(cors())
+
+
 //app.use(morgan('tiny')) // 3.7
 app.use(morgan(':method :url :type :status :res[content-length] - :response-time ms'))
 
@@ -38,6 +42,11 @@ let persons = [
     id: 4,
     name: "Lea Kutvonen",
     number: "040-123456"
+  },
+  {
+    id: 12,
+    name: "Jave Virtanen",
+    number: "040-555555"
   }
 ]
 
@@ -68,7 +77,7 @@ app.post('/api/persons', (request, response) => {  //3.5
       number: body.number,
       id: getRandomArbitrary(1,25000)
     }
-    //console.log('Uusi',person)
+    //  console.log('Uusi',person)
   
     persons = persons.concat(person)
   
@@ -91,7 +100,7 @@ app.get('/api/persons/:id', (request, response) => {  //3.3
   app.delete('/api/persons/:id', (request, response) => {  //3.4
     const id = Number(request.params.id)
     person = persons.filter(p => p.id !== id)
-  
+    console.log('Deleting, stat:',person)
     response.status(204).end()
   })
   
@@ -116,8 +125,9 @@ app.get('/api/persons', (req, res) => {
   
 
 
-const PORT = 3001
-app.listen(PORT, () => {
+  const PORT = process.env.PORT || 3001
+  
+  app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`)
 })
 
