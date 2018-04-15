@@ -50,7 +50,7 @@ let persons2 = [
     id: 3,
     name: "Arto Järvinen",
     number: "040-123456"
-  }, {
+  }, {      
     id: 4,
     name: "Lea Kutvonen",
     number: "040-123456"
@@ -63,6 +63,7 @@ let persons2 = [
 ]
 
 const formatPerson2 = (person) => {
+  console.log('fP2 for: ',person._id)
   return {
     name: person.name,
     number: person.number,
@@ -79,54 +80,88 @@ app.post('/api/persons', (request, response) => {  //3.5
     
     //console.log('post',body, "vs ",request)
     console.log('DB add! for',body.name)
-    if (body.name === undefined) {   //3.6
+    if (body.name === undefined || body.name.length ===0 ) {   //3.6
+      console.log('No name')
       return response.status(400).json({error: 'Name missing'})
     }
-    if (body.number === undefined) {
+    if (body.number === undefined || body.number.length===0) {
+      console.log('No number!')
       return response.status(400).json({error: 'Number missing'})
     }
-    
-    if (Person.find({"name" : body.name}).count()>0)
-    {
-      console.log('Loytyi',body.name)
-    }else {
-      console.log('Tai ei?',body.name)
-    }
 
+    let kpl = 0
 
+    /*let abc = Person.find({ 'name': body.name }, function (err, person) {
+      if (err) return handleError(err);
+      // Prints "Space Ghost is a talk show host".
+      console.log('FFF  %s : %s', person.name, person.number)
+    })
 
-    /*if (persons.filter(p => p.name === body.name).length>0) {
-      console.log('Löytyypi listasta jo', body.name)
-      return response.status(400).json({error: 'Name exists already.'})
-    }*/
-  
+    Person
+      .find( { name: body.name})
+      .then(person => {
+        console.log('111 Loytyi jo',body.name)
+        //persons3.concat(person)
+        //response.json(formatPerson2(person))
+      })
+      .catch( 
+        console.log('222 Ei löytynyt, luodaan uutena.')
+        )*/
+
+    //lisays
     const person = new Person({
       name: body.name,
       number: body.number,
       id: getRandomArbitrary(1,25000)
     })
-    //  console.log('Uusi',person)
-  
-    //persons = persons.concat(person)
-  
-    //response.json(person)
+    console.log('Save2...',body.name)
     person
       .save ()
       .then(addedPerson => {
-        response.json(formatPerson2(addedPerson))
+        response.json(addedPerson.formatPerson)
+        //response(addedPerson.statics.formatPerson)
       })
+
 
   })
 
+  app.get('/api/persons/:id', (request, response) => {
 
- 
-app.get('/api/persons/:id', (request, response) => {
-    console.log('DB Get!')
+    const id = Number(request.params.id)
+  
+    //console.log('DB Get!',id)
+  
+
     Person
       .findById(request.params.id)
       .then(person => {
-        response.json(formatPerson(person))
+        response.json(formatPerson2(person))
       })
+      .catch( response.status(400).json({error: "Person not found."})
+    )
+  })
+ 
+app.get('/api/personsxxx/:id', (request, response) => {
+  const id = Number(request.params.id)
+  
+  console.log('DB Get!',id)
+
+    if (Person.find({ id : id }).count()>0)
+    {
+      console.log('Found it: ',id)
+      return response.json(formatPerson(person))
+    } else {
+      //console.log('Tai ei?',body.name)
+      console.log('Person not found w id',id)
+      return response.status(400).json({error: 'Person not found.'})
+    }
+
+
+/*    Person
+      .findById(request.params.id)
+      .then(person => {
+        response.json(formatPerson(person))
+      })*/
 })
 
 
@@ -135,16 +170,21 @@ app.get('/api/persons/:id', (request, response) => {
     const id = Number(request.params.id)
     //person = persons.filter(p => p.id !== id)
   
+    if (id === undefined) {
+      console.log('Deleted already:',id)
+      return response.status(304)
+    }
+
     
     Person.remove({ id: id }, function(err) {
       if (!err) {
         console.log('Deleting, stat:', id)
-        response.status(204).end()
+        return response.status(204).end()
         }
       else {
         //message.type = 'error';
         console.log('Item has already been deleted.')
-        response.status(304).end()
+        return response.status(304).end()
       }
   });
 

@@ -18,6 +18,11 @@ const deletex = (id) => {
     return axios.delete(`${baseUrl}/${id}`)
 
 }
-  
+
+const get = (id) => {
+  console.log('GetServ',id)
+  return axios.get(`${baseUrl}/${id}`)
+}
+
 
 export default { getAll, create, update,deletex }
