@@ -86,10 +86,19 @@ app.post('/api/persons', (request, response) => {  //3.5
       return response.status(400).json({error: 'Number missing'})
     }
     
-    if (persons.filter(p => p.name === body.name).length>0) {
+    if (Person.find({"name" : body.name}).count()>0)
+    {
+      console.log('Loytyi',body.name)
+    }else {
+      console.log('Tai ei?',body.name)
+    }
+
+
+
+    /*if (persons.filter(p => p.name === body.name).length>0) {
       console.log('Löytyypi listasta jo', body.name)
       return response.status(400).json({error: 'Name exists already.'})
-    }
+    }*/
   
     const person = new Person({
       name: body.name,
@@ -98,7 +107,7 @@ app.post('/api/persons', (request, response) => {  //3.5
     })
     //  console.log('Uusi',person)
   
-    persons = persons.concat(person)
+    //persons = persons.concat(person)
   
     //response.json(person)
     person
@@ -124,9 +133,35 @@ app.get('/api/persons/:id', (request, response) => {
 
  app.delete('/api/persons/:id', (request, response) => {  //3.4
     const id = Number(request.params.id)
-    person = persons.filter(p => p.id !== id)
-    console.log('Deleting, stat:',person)
-    response.status(204).end()
+    //person = persons.filter(p => p.id !== id)
+  
+    
+    Person.remove({ id: id }, function(err) {
+      if (!err) {
+        console.log('Deleting, stat:', id)
+        response.status(204).end()
+        }
+      else {
+        //message.type = 'error';
+        console.log('Item has already been deleted.')
+        response.status(304).end()
+      }
+  });
+
+
+
+
+    /*if (Person.find({"id" : id}).count()>0)
+    {
+      console.log('Deleting, stat:',person)
+      response.status(204).end()
+    
+    }else {
+      console.log('Tai ei?:',id)
+    }*/
+
+
+    
   })
   
 

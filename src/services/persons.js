@@ -14,7 +14,7 @@ const update = (id, newObject) => {
 }
 
 const deletex = (id) => {
-    //console.log("DelService",id)
+    console.log("DelService",id)
     return axios.delete(`${baseUrl}/${id}`)
 
 }
