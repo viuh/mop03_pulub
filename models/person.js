@@ -3,6 +3,11 @@ var Schema = mongoose.Schema;
 
 require('dotenv').config()
 
+if ( process.env.NODE_ENV !== 'production' ) {
+  require('dotenv').config()
+}
+
+
 //console.log('db', process.env.DBUSER)
 
 const dbname = process.env.MONGODB_NAME
