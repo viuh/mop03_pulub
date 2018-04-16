@@ -43,6 +43,8 @@ personSchema.statics.formatPerson = function(person) {
 
 const Person = mongoose.model('Person',personSchema)
 
+
+
 /*const Person = mongoose.model('Person',
     {
         name: String,

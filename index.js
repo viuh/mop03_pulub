@@ -14,6 +14,8 @@ app.use(cors())
 //app.use(morgan('tiny')) // 3.7
 app.use(morgan(':method :url :type :status :res[content-length] - :response-time ms'))
 
+process.on('unhandledRejection', up => { throw up })
+
 const Person = require('./models/person')
 
 
@@ -75,9 +77,12 @@ function getRandomArbitrary(min, max) {
     return Math.random() * (max - min) + min;
   }
 
-app.post('/api/persons', (request, response) => {  //3.5
-    const body = request.body
-    
+
+  app.post('/api/persons', (request, response) => {
+
+
+    const body = request.body  
+
     //console.log('post',body, "vs ",request)
     console.log('DB add! for',body.name)
     if (body.name === undefined || body.name.length ===0 ) {   //3.6
@@ -89,39 +94,101 @@ app.post('/api/persons', (request, response) => {  //3.5
       return response.status(400).json({error: 'Number missing'})
     }
 
-    let kpl = 0
-
-    /*let abc = Person.find({ 'name': body.name }, function (err, person) {
-      if (err) return handleError(err);
-      // Prints "Space Ghost is a talk show host".
-      console.log('FFF  %s : %s', person.name, person.number)
-    })
-
-    Person
-      .find( { name: body.name})
-      .then(person => {
-        console.log('111 Loytyi jo',body.name)
-        //persons3.concat(person)
-        //response.json(formatPerson2(person))
-      })
-      .catch( 
-        console.log('222 Ei löytynyt, luodaan uutena.')
-        )*/
-
-    //lisays
     const person = new Person({
       name: body.name,
       number: body.number,
       id: getRandomArbitrary(1,25000)
     })
-    console.log('Save2...',body.name)
+  
     person
+      .save()
+      .then(formatPerson2)
+      .then(savedAndFormattedNote => {
+        response.json(savedAndFormattedNote)
+      })
+  
+  })
+
+
+app.post('/api/persons123', (request, response) => {  //3.5
+    const body = request.body  
+
+    //console.log('post',body, "vs ",request)
+    console.log('DB add! for',body.name)
+    if (body.name === undefined || body.name.length ===0 ) {   //3.6
+      console.log('No name')
+      return response.status(400).json({error: 'Name missing'})
+    }
+    if (body.number === undefined || body.number.length===0) {
+      console.log('No number!')
+      return response.status(400).json({error: 'Number missing'})
+    }
+
+    const person = new Person({
+      name: body.name,
+      number: body.number,
+      id: getRandomArbitrary(1,25000)
+    })
+
+
+    Person
+      .find({name:body.name})
+      .then(result=> {
+        //response.status()
+        /*if (result) {
+        console.log('Diips', result.length, " - tai - ", body.name)
+
+          return response.status(400).json({error: "Name exists already"})
+          } 
+          else {
+        console.log('Sth else', result)*/
+      if (result.length === 0) {
+      person
       .save ()
       .then(addedPerson => {
-        response.json(addedPerson.formatPerson)
-        //response(addedPerson.statics.formatPerson)
+        if (addedPerson) {
+          console.log('test123')
+          //response.json(addedPerson.formatPerson2)
+          return response.json(formatPerson2(person))
+
+        } else {
+          console.log('test256')
+          return response.status(404).end() //?
+        }
+      })
+      .catch(error => {
+        console.log(error)
+        return response.status(404).end()
+      })
+      }
+
+      })
+      .catch(error => {
+        console.log('Pluup123')
+        console.log(error)
+        response.status(404).end()
       })
 
+    console.log('Jatkuupi taal')
+    
+
+/*    person
+      .save ()
+      .then(addedPerson => {
+        if (addedPerson) {
+          console.log('test123')
+          //response.json(addedPerson.formatPerson2)
+          return response.json(formatPerson2(person))
+
+        } else {
+          console.log('test256')
+          return response.status(404).end() //?
+        }
+      })
+      .catch(error => {
+        console.log(error)
+        return response.status(404).end()
+      })*/
 
   })
 
@@ -135,7 +202,11 @@ app.post('/api/persons', (request, response) => {  //3.5
     Person
       .findById(request.params.id)
       .then(person => {
-        response.json(formatPerson2(person))
+        if (person) {
+          response.json(formatPerson2(person)) }
+        else {
+          response.status(404).end()
+        }
       })
       .catch( response.status(400).json({error: "Person not found."})
     )
@@ -204,6 +275,26 @@ app.get('/api/personsxxx/:id', (request, response) => {
     
   })
   
+
+  app.put('/api/persons/:id', (request, response) => {
+    const body = request.body
+    const id = Number(request.params.id)
+  
+    const person = {
+      number: body.number
+    }
+  
+    Person
+      .findByIdAndUpdate( id, person, { new: true } )
+      .then(updatedPerson => {
+        console.log('Putti? ', id)
+        response.json(formatNote(updatedPerson))
+      })
+      .catch(error => {
+        console.log(error)
+        response.status(400).send({ error: 'malformatted id' })
+      })
+  })
 
 
 
