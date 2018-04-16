@@ -1,5 +1,5 @@
 
-# Server-version at:
+# Server-version at (production db)
 
     https://serene-brushlands-89861.herokuapp.com/
 
@@ -9,12 +9,11 @@
 
 # ----------------------------------
 
-### For running server:  (in port 3001)
+
+
+### For running server locally  (in port 3001, dev db)
 
 * npm run watch
 
-### For running client  (in port 3006)
-
-* npm run startclient
 
 
