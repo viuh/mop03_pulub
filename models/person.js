@@ -5,7 +5,12 @@ require('dotenv').config()
 
 //console.log('db', process.env.DBUSER)
 
-const url = 'mongodb://'+process.env.DBUSER+':'+process.env.DBPASS+'@ds217138.mlab.com:17138/pulub'
+const dbname = process.env.MONGODB_NAME
+
+console.log('Dbname:',dbname)
+//orig '@ds217138.mlab.com:17138/pulub'
+
+const url = 'mongodb://'+process.env.DBUSER+':'+process.env.DBPASS+dbname
 
 mongoose.connect(url)
 mongoose.Promise = global.Promise
