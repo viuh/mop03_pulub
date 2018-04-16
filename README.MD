@@ -1,13 +1,10 @@
 
-# Server-version at (production db)
+### Server-version at  (production db)
 
     https://serene-brushlands-89861.herokuapp.com/
 
 
 (git push heroku master)
-
-
-# ----------------------------------
 
 
 
