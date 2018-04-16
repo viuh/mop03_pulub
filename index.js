@@ -37,7 +37,7 @@ app.get('/api/persons', (request, response) => {
     })
 })
 
-let persons2 = [
+/*let persons2 = [
   {
     id: 1,
     name: "Arto Hellas",
@@ -52,7 +52,7 @@ let persons2 = [
     id: 3,
     name: "Arto Järvinen",
     number: "040-123456"
-  }, {      
+  }, {
     id: 4,
     name: "Lea Kutvonen",
     number: "040-123456"
@@ -62,7 +62,7 @@ let persons2 = [
     name: "Jave Virtanen",
     number: "040-555555"
   }
-]
+]*/
 
 const formatPerson2 = (person) => {
   console.log('fP2 for: ',person._id)
@@ -75,218 +75,166 @@ const formatPerson2 = (person) => {
 }
 
 function getRandomArbitrary(min, max) {
-    return Math.random() * (max - min) + min;
+  return Math.random() * (max - min) + min
+}
+
+
+app.post('/api/persons', (request, response) => {
+
+
+  const body = request.body
+
+  //console.log('post',body, "vs ",request)
+  console.log('DB add! for',body.name)
+  if (body.name === undefined || body.name.length ===0 ) {   //3.6
+    console.log('No name')
+    return response.status(400).json({ error: 'Name missing' })
+  }
+  if (body.number === undefined || body.number.length===0) {
+    console.log('No number!')
+    return response.status(400).json({ error: 'Number missing' })
   }
 
-
-  app.post('/api/persons', (request, response) => {
-
-
-    const body = request.body  
-
-    //console.log('post',body, "vs ",request)
-    console.log('DB add! for',body.name)
-    if (body.name === undefined || body.name.length ===0 ) {   //3.6
-      console.log('No name')
-      return response.status(400).json({error: 'Name missing'})
-    }
-    if (body.number === undefined || body.number.length===0) {
-      console.log('No number!')
-      return response.status(400).json({error: 'Number missing'})
-    }
-
-    const person = new Person({
-      name: body.name,
-      number: body.number,
-      id: getRandomArbitrary(1,25000)
-    })
-  
-    person
-      .save()
-      .then(formatPerson2)
-      .then(savedAndFormattedPerson => {
-        response.json(savedAndFormattedPerson)
-      })
-      .catch(
-        error => {
-          console.log(error)
-          response.status(400).send({ error: 'malformatted id: '+id })
-        }      
-      )     
-  
+  const person = new Person({
+    name: body.name,
+    number: body.number,
+    id: getRandomArbitrary(1,25000)
   })
 
-
-app.post('/api/persons123', (request, response) => {  //3.5
-    const body = request.body  
-
-    //console.log('post',body, "vs ",request)
-    console.log('DB add! for',body.name)
-    if (body.name === undefined || body.name.length ===0 ) {   //3.6
-      console.log('No name')
-      return response.status(400).json({error: 'Name missing'})
-    }
-    if (body.number === undefined || body.number.length===0) {
-      console.log('No number!')
-      return response.status(400).json({error: 'Number missing'})
-    }
-
-    const person = new Person({
-      name: body.name,
-      number: body.number,
-      id: getRandomArbitrary(1,25000)
+  person
+    .save()
+    .then(formatPerson2)
+    .then(savedAndFormattedPerson => {
+      response.json(savedAndFormattedPerson)
     })
-
-
-    Person
-      .find({name:body.name})
-      .then(result=> {
-        if (result.length === 0) {
-          person
-        .save ()
-        .then(addedPerson => {
-          if (addedPerson) {
-            console.log('test123')
-            //response.json(addedPerson.formatPerson2)
-            return response.json(formatPerson2(person))
-
-          } else {
-            console.log('test256')
-            return response.status(404).end() //?
-         }
-        })
-        .catch(error => {
-          console.log(error)
-          return response.status(404).end()
-        })
-      }
-      })
-      .catch(error => {
-        console.log('Pluup123')
+    .catch(
+      error => {
         console.log(error)
-        response.status(404).end()
-      })
+        response.status(400).send({ error: 'malformatted item: ' })
+      }
+    )
 
-    console.log('Jatkuupi taal')
-    
-
-
-  })
-
-  app.get('/api/persons/:id', (request, response) => {
-
-    const id = request.params.id
-  
-    console.log('DB Get!', id)
-  
-
-    Person
-      //.findById({"_id": id})
-      //.findById(id)
-      .find({id:id})
-      .then(person => {
-        if (person) {
-          console.log('Person: get for ',id, " is ", person)
-          //return response.formatPerson2(person)
-          //return formatPersonX(person)
-          //return Person.constructor.formatPersonX(person)  
-          return response.json(person[0]) 
-        } else {
-          //console.log('Virhe b?')
-          return response.status(404).end()
-        }
-      })
-      .catch(
-        error => {
-          console.log(error)
-          response.status(400).send({ error: 'malformatted id: '+id })
-        }      
-      )
-
-
-  })
- 
+})
 
 
 
- app.delete('/api/persons/:id', (request, response) => {  //3.4
-    const id = request.params.id
-  
-    console.log('Deleting for: ',id)
-    if (id === undefined) {
-      console.log('Malformatted id',id)
-      return response.status(304)
-    }
 
-    
-    Person.remove({ id: id }, function(err) {
-      if (!err) {
-        console.log('Deleting, stat:', id)
-        return response.status(204).end()
-        }
-      else {
-        //message.type = 'error';
-        console.log('Item has already been deleted.')
-        return response.status(304).end()
+app.get('/api/persons/:id', (request, response) => {
+
+  const id = request.params.id
+
+  console.log('DB Get!', id)
+
+
+  Person
+  //.findById({"_id": id})
+  //.findById(id)
+    .find({ id:id })
+    .then(person => {
+      if (person) {
+        console.log('Person: get for ',id, ' is ', person)
+        //return response.formatPerson2(person)
+        //return formatPersonX(person)
+        //return Person.constructor.formatPersonX(person)
+        return response.json(person[0])
+      } else {
+        //console.log('Virhe b?')
+        return response.status(404).end()
       }
     })
     .catch(
       error => {
         console.log(error)
-        response.status(400).send({ error: 'Deleting failed for : '+id })
-      }      
+        response.status(400).send({ error: 'malformatted id: '+id })
+      }
     )
-    
-  })
-  
 
-  app.put('/api/persons/:id', (request, response) => {
-    const body = request.body
-    const id = request.params.id
-    console.log('Update desired for: ', id , " b:",body)
 
-    const person = {
-      number: body.number
+})
+
+
+
+
+app.delete('/api/persons/:id', (request, response) => {  //3.4
+  const id = request.params.id
+
+  console.log('Deleting for: ',id)
+  if (id === undefined) {
+    console.log('Malformatted id',id)
+    return response.status(304)
+  }
+
+
+  Person.remove({ id: id }, function(err) {
+    if (!err) {
+      console.log('Deleting, stat:', id)
+      return response.status(204).end()
     }
-  
-    Person
-      //.findByIdAndUpdate( {id:id}, person, { new: true } )
-      .findOneAndUpdate( {id:id}, person, {new:true})
-      //.save ()
-      .then(updatedPerson => {
-
-        //console.log('Doing update... ', id, ' upd:', updatedPerson)
-        response.json(formatPerson2(updatedPerson))
-      })
-      .catch(error => {
-        console.log(error)
-        response.status(400).send({ error: 'malformatted data/id '+id })
-      })
+    else {
+      //message.type = 'error';
+      console.log('Item has already been deleted.')
+      return response.status(304).end()
+    }
   })
+    .catch(
+      error => {
+        console.log(error)
+        response.status(400).send({ error: 'Deleting failed for : '+id })
+      }
+    )
+
+})
+
+
+app.put('/api/persons/:id', (request, response) => {
+  const body = request.body
+  const id = request.params.id
+  console.log('Update desired for: ', id , ' b:',body)
+
+  const person = {
+    number: body.number
+  }
+
+  Person
+  //.findByIdAndUpdate( {id:id}, person, { new: true } )
+    .findOneAndUpdate( { id:id }, person, { new:true })
+  //.save ()
+    .then(updatedPerson => {
+
+      //console.log('Doing update... ', id, ' upd:', updatedPerson)
+      response.json(formatPerson2(updatedPerson))
+    })
+    .catch(error => {
+      console.log(error)
+      response.status(400).send({ error: 'malformatted data/id '+id })
+    })
+})
 
 
 
 app.get('/info', (req, res) => {  //3.2.
-    let qty = persons.length
-    let msg = "puhelinluettelossa "+qty+" henkilön tiedot" 
-    
+
+  var count = 0
+  Person.find().exec(function (err, results) {
+    count = results.length
+    console.log('Info, countti:',count)
+
+    let msg = 'puhelinluettelossa '+count+' henkilön tiedot'
+
     let date = new Date()
-    res.send(msg + "<br><br>"+date)
+    res.send(msg + '<br><br>'+date)
   })
-    
+})
 
 
-/*app.get('/api/persons', (req, res) => {
-    res.json(persons)
-  })*/
-  
-  app.use(bodyParser.json())
-  
+
+app.use(bodyParser.json())
 
 
-  const PORT = process.env.PORT || 3001
-  
-  app.listen(PORT, () => {
+
+const PORT = process.env.PORT || 3001
+
+app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`)
 })
 
