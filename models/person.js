@@ -31,12 +31,13 @@ const personSchema = new Schema({
     })
   }*/
 
-personSchema.statics.formatPerson = function(person) {
+personSchema.statics.formatPersonX = function(person) {
     console.log('formPer', person)
     return {
       name: person.name,
       number: person.number,
-      id: person.id
+      id: person.id,
+      _id: person._id
     }
 }
 

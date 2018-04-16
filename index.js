@@ -14,7 +14,7 @@ app.use(cors())
 //app.use(morgan('tiny')) // 3.7
 app.use(morgan(':method :url :type :status :res[content-length] - :response-time ms'))
 
-process.on('unhandledRejection', up => { throw up })
+//process.on('unhandledRejection', up => { throw up })
 
 const Person = require('./models/person')
 
@@ -69,7 +69,8 @@ const formatPerson2 = (person) => {
   return {
     name: person.name,
     number: person.number,
-    id: person._id
+    _id: person._id,
+    id: person.id
   }
 }
 
@@ -103,9 +104,15 @@ function getRandomArbitrary(min, max) {
     person
       .save()
       .then(formatPerson2)
-      .then(savedAndFormattedNote => {
-        response.json(savedAndFormattedNote)
+      .then(savedAndFormattedPerson => {
+        response.json(savedAndFormattedPerson)
       })
+      .catch(
+        error => {
+          console.log(error)
+          response.status(400).send({ error: 'malformatted id: '+id })
+        }      
+      )     
   
   })
 
@@ -134,34 +141,25 @@ app.post('/api/persons123', (request, response) => {  //3.5
     Person
       .find({name:body.name})
       .then(result=> {
-        //response.status()
-        /*if (result) {
-        console.log('Diips', result.length, " - tai - ", body.name)
+        if (result.length === 0) {
+          person
+        .save ()
+        .then(addedPerson => {
+          if (addedPerson) {
+            console.log('test123')
+            //response.json(addedPerson.formatPerson2)
+            return response.json(formatPerson2(person))
 
-          return response.status(400).json({error: "Name exists already"})
-          } 
-          else {
-        console.log('Sth else', result)*/
-      if (result.length === 0) {
-      person
-      .save ()
-      .then(addedPerson => {
-        if (addedPerson) {
-          console.log('test123')
-          //response.json(addedPerson.formatPerson2)
-          return response.json(formatPerson2(person))
-
-        } else {
-          console.log('test256')
-          return response.status(404).end() //?
-        }
-      })
-      .catch(error => {
-        console.log(error)
-        return response.status(404).end()
-      })
+          } else {
+            console.log('test256')
+            return response.status(404).end() //?
+         }
+        })
+        .catch(error => {
+          console.log(error)
+          return response.status(404).end()
+        })
       }
-
       })
       .catch(error => {
         console.log('Pluup123')
@@ -172,77 +170,51 @@ app.post('/api/persons123', (request, response) => {  //3.5
     console.log('Jatkuupi taal')
     
 
-/*    person
-      .save ()
-      .then(addedPerson => {
-        if (addedPerson) {
-          console.log('test123')
-          //response.json(addedPerson.formatPerson2)
-          return response.json(formatPerson2(person))
-
-        } else {
-          console.log('test256')
-          return response.status(404).end() //?
-        }
-      })
-      .catch(error => {
-        console.log(error)
-        return response.status(404).end()
-      })*/
 
   })
 
   app.get('/api/persons/:id', (request, response) => {
 
-    const id = Number(request.params.id)
+    const id = request.params.id
   
-    //console.log('DB Get!',id)
+    console.log('DB Get!', id)
   
 
     Person
-      .findById(request.params.id)
+      //.findById({"_id": id})
+      //.findById(id)
+      .find({id:id})
       .then(person => {
         if (person) {
-          response.json(formatPerson2(person)) }
-        else {
-          response.status(404).end()
+          console.log('Person: get for ',id, " is ", person)
+          //return response.formatPerson2(person)
+          //return formatPersonX(person)
+          //return Person.constructor.formatPersonX(person)  
+          return response.json(person[0]) 
+        } else {
+          //console.log('Virhe b?')
+          return response.status(404).end()
         }
       })
-      .catch( response.status(400).json({error: "Person not found."})
-    )
+      .catch(
+        error => {
+          console.log(error)
+          response.status(400).send({ error: 'malformatted id: '+id })
+        }      
+      )
+
+
   })
  
-app.get('/api/personsxxx/:id', (request, response) => {
-  const id = Number(request.params.id)
-  
-  console.log('DB Get!',id)
-
-    if (Person.find({ id : id }).count()>0)
-    {
-      console.log('Found it: ',id)
-      return response.json(formatPerson(person))
-    } else {
-      //console.log('Tai ei?',body.name)
-      console.log('Person not found w id',id)
-      return response.status(400).json({error: 'Person not found.'})
-    }
-
-
-/*    Person
-      .findById(request.params.id)
-      .then(person => {
-        response.json(formatPerson(person))
-      })*/
-})
 
 
 
  app.delete('/api/persons/:id', (request, response) => {  //3.4
-    const id = Number(request.params.id)
-    //person = persons.filter(p => p.id !== id)
+    const id = request.params.id
   
+    console.log('Deleting for: ',id)
     if (id === undefined) {
-      console.log('Deleted already:',id)
+      console.log('Malformatted id',id)
       return response.status(304)
     }
 
@@ -257,42 +229,38 @@ app.get('/api/personsxxx/:id', (request, response) => {
         console.log('Item has already been deleted.')
         return response.status(304).end()
       }
-  });
-
-
-
-
-    /*if (Person.find({"id" : id}).count()>0)
-    {
-      console.log('Deleting, stat:',person)
-      response.status(204).end()
-    
-    }else {
-      console.log('Tai ei?:',id)
-    }*/
-
-
+    })
+    .catch(
+      error => {
+        console.log(error)
+        response.status(400).send({ error: 'Deleting failed for : '+id })
+      }      
+    )
     
   })
   
 
   app.put('/api/persons/:id', (request, response) => {
     const body = request.body
-    const id = Number(request.params.id)
-  
+    const id = request.params.id
+    console.log('Update desired for: ', id , " b:",body)
+
     const person = {
       number: body.number
     }
   
     Person
-      .findByIdAndUpdate( id, person, { new: true } )
+      //.findByIdAndUpdate( {id:id}, person, { new: true } )
+      .findOneAndUpdate( {id:id}, person, {new:true})
+      //.save ()
       .then(updatedPerson => {
-        console.log('Putti? ', id)
-        response.json(formatNote(updatedPerson))
+
+        //console.log('Doing update... ', id, ' upd:', updatedPerson)
+        response.json(formatPerson2(updatedPerson))
       })
       .catch(error => {
         console.log(error)
-        response.status(400).send({ error: 'malformatted id' })
+        response.status(400).send({ error: 'malformatted data/id '+id })
       })
   })
 
